@@ -57,5 +57,5 @@ Proyectos realizados durante la Hackathon 2025.
 ## 🚀 Sobre mí
 Soy un programador en formación enfocado en el desarrollo web y backend, con fuerte interés en aprender nuevas tecnologías y crear soluciones reales. Busco mi primera experiencia profesional en IT.
 
-📧 Email: **francorrellano11@gmail.com**
+📧 Email: **francororellano11@gmail.com**
 
