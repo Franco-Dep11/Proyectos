@@ -1,0 +1,111 @@
+<!-- templates/producto.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ producto.nombre }}</title>
+  <style>
+    /* Fondo gradiente */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #3CB371 0%, #8B4513 50%, #696969 100%);
+      color: #fff;
+      text-align: center;
+    }
+    .container {
+      width: 80%;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .product-img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+    }
+    .whatsapp-btn {
+      display: inline-block;
+      padding: 10px;
+      background: #556B2F;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .ficha-container {
+      background-color: #f2f2f2;
+      color: #333;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: left;
+    }
+    .ficha-container h2 {
+      color: #333;
+      margin-top: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: #fff;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>{{ producto.nombre }}</h1>
+
+    {% if producto.imagen %}
+      <img src="{{ url_for('static', filename=producto.imagen) }}" alt="{{ producto.nombre }}" class="product-img">
+    {% endif %}
+
+    {% if producto.descripcion %}
+      <p>{{ producto.descripcion }}</p>
+    {% endif %}
+
+    <div class="ficha-container">
+      <h2>Ficha Técnica</h2>
+      {% if producto.ficha %}
+        <table>
+          <thead>
+            <tr>
+              <th>Característica</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for key, value in producto.ficha.items() %}
+              <tr>
+                <td><strong>{{ key }}</strong></td>
+                <td>{{ value }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>No hay información técnica disponible.</p>
+      {% endif %}
+    </div>
+
+    <br>
+    <a href="https://wa.me/5492612058043?text=Hola,%20quiero%20m%C3%A1s%20informaci%C3%B3n%20sobre%20{{ producto.nombre }}"
+       class="whatsapp-btn"
+       target="_blank">
+       Comprar por WhatsApp
+    </a>
+    <br><br>
+    <a href="{{ url_for('lista_productos') }}" class="back-link">Volver a productos</a>
+  </div>
+</body>
+</html>

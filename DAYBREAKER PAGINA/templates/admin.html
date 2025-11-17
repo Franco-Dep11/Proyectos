@@ -1,0 +1,54 @@
+<!-- templates/admin.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - DayBreaker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script defer src="{{ url_for('static', filename='admin.js') }}"></script>
+</head>
+<body>
+  <header>
+    <h1>Panel de Administración</h1>
+    <a href="{{ url_for('logout') }}" class="logout-button">Cerrar Sesión</a>
+  </header>
+
+  <main>
+    <h2>Gestionar Productos</h2>
+    <form id="producto-form">
+      <input type="hidden" id="producto-id">
+      <label>Nombre: 
+        <input type="text" id="nombre">
+      </label>
+      <label>Descripción (opcional):
+        <textarea id="descripcion" rows="3" cols="30"></textarea>
+      </label>
+      <label>Imagen:
+        <input type="file" id="imagen">
+      </label>
+      <button type="submit">Guardar Producto</button>
+    </form>
+
+    <h3>Lista de Productos</h3>
+    <div id="productos-container">
+      {% for p in productos %}
+      <div class="producto">
+        {% if p.imagen %}
+          <img src="{{ url_for('static', filename=p.imagen) }}" alt="{{ p.nombre }}">
+        {% else %}
+          <img src="{{ url_for('static', filename='no_image.png') }}" alt="Sin imagen">
+        {% endif %}
+        <h3>{{ p.nombre }}</h3>
+        {% if p.descripcion %}
+          <p>{{ p.descripcion }}</p>
+        {% endif %}
+        <button onclick="editarProducto('{{ p.id }}', '{{ p.nombre|escape }}', '{{ p.descripcion|escape }}')">
+          Editar
+        </button>
+        <button onclick="eliminarProducto('{{ p.id }}')">Eliminar</button>
+      </div>
+      {% endfor %}
+    </div>
+  </main>
+</body>
+</html>

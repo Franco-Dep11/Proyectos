@@ -1,0 +1,90 @@
+<!-- templates/presentacion.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Presentación - DAYBREAKER SAS</title>
+  <!-- Importamos Google Fonts para un look moderno -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Ajustes específicos para la página de presentación */
+    .presentacion-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      animation: fadeIn 2s ease;
+    }
+    .seccion {
+      margin: 30px 0;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+    }
+    .seccion h2 {
+      font-size: 36px;
+      margin-bottom: 15px;
+      color: #CD853F; /* tono marrón */
+    }
+    .seccion p {
+      font-size: 20px;
+      line-height: 1.6;
+      color: #f1f1f1;
+      margin: 0;
+    }
+    .btn-productos {
+      display: inline-block;
+      margin-top: 40px;
+      padding: 20px 40px;
+      background: #556B2F; /* verde oliva oscuro */
+      color: #fff;
+      font-size: 24px;
+      text-decoration: none;
+      border-radius: 50px;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .btn-productos:hover {
+      background: #4E6E27;
+      transform: scale(1.05);
+    }
+    /* Animaciones */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header style="text-align: center; padding: 40px;">
+    <h1>DAYBREAKER SAS</h1>
+  </header>
+
+  <div class="presentacion-container">
+    <div class="seccion">
+      <h2>¿Quiénes Somos?</h2>
+      <p>
+        <strong>DAYBREAKER SAS</strong> es una empresa líder en el sector retail de Mendoza, comprometida con ofrecer productos de alta calidad y un servicio excepcional a nuestros clientes. Nuestra misión es transformar la experiencia de compra, brindando soluciones innovadoras y personalizadas que satisfagan las necesidades y expectativas de nuestra comunidad.
+      </p>
+    </div>
+
+    <div class="seccion">
+      <h2>Nuestra Visión</h2>
+      <p>
+        Con una visión clara de convertirnos en la mejor empresa de retail de Mendoza, trabajamos incansablemente para mantenernos a la vanguardia del mercado, implementando las últimas tecnologías y prácticas sostenibles. Nuestro equipo de profesionales dedicados se esfuerza por crear un ambiente acogedor y accesible, donde cada cliente se sienta valorado y atendido.
+      </p>
+    </div>
+
+    <div class="seccion">
+      <h2>Nuestra Comunidad</h2>
+      <p>
+        En DAYBREAKER SAS, creemos en el poder de la colaboración y el crecimiento continuo. Nos enorgullece ser parte activa de la comunidad mendocina, apoyando iniciativas locales y fomentando un desarrollo económico y social sostenible.
+      </p>
+    </div>
+
+    <a href="{{ url_for('lista_productos') }}" class="btn-productos">Ver Productos</a>
+  </div>
+</body>
+</html>
