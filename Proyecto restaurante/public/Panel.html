@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title id="titleTag">Restaurante · Panel</title>
+
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    :root{
+      --outline:rgba(255,255,255,.16);
+      --muted:#cfcfd3;
+      --accent:#22c55e;
+      --shadow:rgba(0,0,0,.55);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;color:#f5f5f5;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+
+    .bg-aura{
+      position:fixed;inset:0;z-index:-2;
+      background:
+        radial-gradient(1000px 700px at 30% 40%,rgba(255,255,255,.12),rgba(0,0,0,.78) 60%),
+        radial-gradient(1200px 800px at 70% 70%,rgba(0,0,0,.7),rgba(0,0,0,.92) 70%),
+        url("/images/Background.webp") center/cover no-repeat fixed;
+      filter:saturate(110%) contrast(105%);
+    }
+
+    /* Botón salir */
+    .btn-logout{
+      position:fixed;right:18px;top:18px;z-index:29;
+      border:none;border-radius:999px;padding:10px 14px;
+      background:#b91c1c;color:#fff;cursor:pointer;
+      box-shadow:0 8px 24px var(--shadow)
+    }
+
+    header.hero{
+      padding:18px 20px;
+      background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.15) 60%,transparent);
+      border-bottom:1px solid var(--outline)
+    }
+    header .kicker{margin:0;color:var(--muted)}
+    header h1{margin:.2rem 0 0}
+    .badge{
+      padding:2px 8px;border-radius:999px;border:1px solid var(--outline);
+      background:rgba(255,255,255,.08)
+    }
+
+    main.container{max-width:1200px;margin:0 auto;padding:20px;display:grid;gap:16px}
+    .grid-2{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+    @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+
+    /* Tarjetas */
+    .card{
+      background:rgba(0,0,0,.35);
+      border:1px solid var(--outline);
+      border-radius:16px;
+      padding:16px;
+      backdrop-filter:blur(8px) saturate(120%);
+      box-shadow:0 16px 40px var(--shadow)
+    }
+    .glass{background:rgba(255,255,255,.06)}
+    .title-row{display:flex;gap:10px;align-items:center}
+
+    /* Inputs / tablas / botones */
+    input,select{
+      width:100%;padding:10px;border-radius:10px;
+      border:1px solid var(--outline);
+      background:rgba(0,0,0,.35);color:#fff
+    }
+    .row{display:flex;gap:10px;align-items:center}
+    .row.end{justify-content:flex-end}
+    .grid{display:grid;gap:10px;grid-template-columns:repeat(3,1fr)}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    .btn{padding:10px 14px;border-radius:10px;border:1px solid var(--outline);background:rgba(255,255,255,.06);color:#fff;cursor:pointer}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .btn.danger{background:#ef4444;border-color:transparent}
+    .table-wrap{overflow:auto;border:1px solid var(--outline);border-radius:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid var(--outline)}
+    td.right{text-align:right} td.center{text-align:center}
+    .chip.ok{border:1px solid #16a34a;background:rgba(22,163,74,.15);padding:3px 8px;border-radius:999px}
+    .chip.warn{border:1px solid #f59e0b;background:rgba(245,158,11,.15);padding:3px 8px;border-radius:999px}
+
+    /* Pedido */
+    .pedido-list{max-height:360px;overflow:auto;border:1px dashed var(--outline);border-radius:12px;padding:10px;margin-top:6px}
+    .pedido-item{display:flex;justify-content:space-between;border-bottom:1px dashed var(--outline);padding:6px 0}
+    .money{font-variant-numeric:tabular-nums}
+    .tip-row{display:grid;grid-template-columns:1fr 90px;gap:10px;align-items:center}
+    .quick-tips{display:flex;gap:6px;flex-wrap:wrap}
+    .chip-tip{padding:4px 8px;border-radius:8px;border:1px solid var(--outline);cursor:pointer;background:rgba(255,255,255,.06)}
+    .chip-tip:hover{background:rgba(255,255,255,.12)}
+
+    /* Tabs */
+    .tabs{display:flex;gap:12px}
+    .tabs button{padding:10px 14px;border-radius:10px;border:1px solid var(--outline);background:rgba(255,255,255,.06);color:#fff;cursor:pointer}
+    .tabs button.active{background:#eab308;color:#222;border-color:transparent}
+    section.panel{display:none} section.panel.active{display:block}
+  </style>
+</head>
+<body class="panel">
+  <div class="bg-aura"></div>
+
+  <!-- Cerrar sesión (único botón flotante) -->
+  <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
+
+  <header class="hero">
+    <p class="kicker">Panel · <span id="rolePill" class="badge">…</span> · <span id="userName"></span></p>
+    <h1><span id="brandName">Restaurante</span> · <span class="badge">gestión</span></h1>
+    <div class="tabs" id="tabs"></div>
+  </header>
+
+  <main class="container">
+    <!-- ====== PEDIDOS (para todos) ====== -->
+    <section id="tab-pedidos" class="panel active">
+      <div class="card glass">
+        <h2>🧾 Gestión de pedidos</h2>
+        <div class="grid-2">
+          <div class="card">
+            <form class="grid" onsubmit="return false;">
+              <label>Plato
+                <select id="selPlato"></select>
+              </label>
+              <label>Precio
+                <input id="precioPlato" type="number" step="0.01" min="0" readonly>
+              </label>
+              <label>Cantidad
+                <input id="cantidad" type="number" min="1" value="1">
+              </label>
+              <div class="row end"><button id="btnAdd" class="btn primary">Agregar</button></div>
+            </form>
+            <p class="muted">* MVP: el pedido se muestra aquí; el POST real lo sumamos luego.</p>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-top:0">Resumen</h3>
+            <div id="pedidoList" class="pedido-list"></div>
+
+            <div style="display:grid;gap:10px;margin-top:10px">
+              <div style="display:flex;justify-content:space-between">
+                <span>Subtotal</span>
+                <strong id="pedidoSubtotal" class="money">$0</strong>
+              </div>
+
+              <div>
+                <label class="muted" style="display:block;margin-bottom:6px">Propina sugerida</label>
+                <div class="tip-row">
+                  <div class="quick-tips">
+                    <button type="button" class="chip-tip" data-tip="0">0%</button>
+                    <button type="button" class="chip-tip" data-tip="5">5%</button>
+                    <button type="button" class="chip-tip" data-tip="10">10%</button>
+                    <button type="button" class="chip-tip" data-tip="15">15%</button>
+                  </div>
+                  <input id="tipPercent" type="number" min="0" max="100" step="1" value="10" title="Propina (%)">
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:6px">
+                  <span>Propina (<span id="tipLabel">10%</span>)</span>
+                  <strong id="tipAmount" class="money">$0</strong>
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--outline);padding-top:8px">
+                <span>Total</span>
+                <h3 id="pedidoTotal" class="money" style="margin:0">$0</h3>
+              </div>
+
+              <div class="row end">
+                <button class="btn primary" id="btnCerrar">Cerrar pedido</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== MENÚ (solo admin) ====== -->
+    <section id="tab-menu" class="panel">
+      <div class="card glass">
+        <h2>🍽️ Menú</h2>
+
+        <div class="card" style="margin-bottom:12px">
+          <h3 style="margin-top:0">➕ Nuevo plato</h3>
+          <form class="grid" id="formPlato">
+            <label>Nombre<input name="nombre" required></label>
+            <label>Precio<input name="precio" type="number" step="0.01" min="0" required></label>
+            <label>Categoría
+              <select name="categoria">
+                <option value="ENTRADA">Entrada</option>
+                <option value="PRINCIPAL" selected>Principal</option>
+                <option value="BEBIDA">Bebida</option>
+                <option value="POSTRE">Postre</option>
+              </select>
+            </label>
+            <label class="row"><input type="checkbox" name="disponible" checked> Disponible</label>
+            <div class="row end"><button class="btn primary" type="submit">Crear plato</button></div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="title-row">
+            <h3 style="margin:0">Platos</h3>
+            <small id="platosCount" class="muted">–</small>
+          </div>
+          <div class="table-wrap">
+            <table id="tblPlatos">
+              <thead>
+                <tr>
+                  <th>Nombre</th><th>Categoría</th><th class="right">Precio</th><th>Estado</th><th class="center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== EMPLEADOS (solo admin) ====== -->
+    <section id="tab-empleados" class="panel">
+      <div class="card glass">
+        <h2>👥 Empleados</h2>
+
+        <div class="card" style="margin-bottom:12px">
+          <h3 style="margin-top:0">➕ Nuevo usuario</h3>
+          <form class="grid" id="formUsuario">
+            <label>Nombre<input name="nombre" required></label>
+            <label>Edad<input name="edad" type="number" min="16" max="100" required></label>
+            <label>Usuario<input name="username" required></label>
+            <label>Contraseña<input name="password" type="password" required></label>
+            <label>Rol
+              <select name="rol">
+                <option value="EMPLEADO" selected>Empleado</option>
+                <option value="ADMIN">Administrador</option>
+              </select>
+            </label>
+            <label>Puesto<input name="puesto" required></label>
+            <label>Sueldo<input name="sueldo" type="number" step="0.01" min="0" required></label>
+            <label>Días/semana<input name="dias" type="number" min="1" max="7" required></label>
+            <label>Horas/día<input name="horas" type="number" step="0.5" min="1" required></label>
+            <div class="row end"><button class="btn primary" type="submit">Crear usuario</button></div>
+          </form>
+          <p class="muted">Los usuarios creados aquí quedan guardados en <code>localStorage</code>, por lo que pueden ingresar desde el login.</p>
+        </div>
+
+        <div class="card">
+          <div class="title-row">
+            <h3 style="margin:0">Usuarios</h3>
+            <!-- ✨ CORRECCIÓN: aquí estaba el “=” suelto; ahora está bien -->
+            <small id="usuariosCount" class="muted">–</small>
+          </div>
+          <div class="table-wrap">
+            <table id="tblUsuarios">
+              <thead>
+                <tr>
+                  <th>Nombre</th><th class="center">Edad</th><th>Usuario</th><th>Rol</th><th>Puesto</th><th class="right">Sueldo</th><th class="center">Días</th><th class="center">Horas</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /* ===== Nombre y guard de sesión ===== */
+    fetch('/config.json')
+      .then(r=>r.ok?r.json():{restaurantName:'Restaurante'})
+      .then(cfg=>{
+        const brand=cfg.restaurantName||'Restaurante';
+        brandName.textContent=brand;
+        titleTag.textContent=brand+' · Panel';
+      }).catch(()=>{});
+
+    const role=localStorage.getItem('authRole');
+    const user=localStorage.getItem('authUser');
+    if(!role || !user){ location.href='/'; }
+    rolePill.textContent=role; userName.textContent=user;
+
+    // Tabs visibles según rol
+    const tabsEl=document.getElementById('tabs');
+    const tabsDef=[
+      {id:'pedidos',label:'Pedidos',all:true},
+      {id:'menu',label:'Menú',admin:true},
+      {id:'empleados',label:'Empleados',admin:true}
+    ];
+    tabsEl.innerHTML='';
+    tabsDef.forEach(t=>{
+      if(role==='EMPLEADO' && !t.all) return;
+      const b=document.createElement('button');
+      b.className='btn'+(t.id==='pedidos'?' active':'');
+      b.textContent=t.label;
+      b.addEventListener('click',()=>{
+        document.querySelectorAll('section.panel').forEach(s=>s.classList.remove('active'));
+        document.getElementById('tab-'+t.id).classList.add('active');
+        tabsEl.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+      });
+      tabsEl.appendChild(b);
+    });
+
+    // Logout
+    btnLogout.addEventListener('click',()=>{
+      localStorage.removeItem('authRole');
+      localStorage.removeItem('authUser');
+      location.href='/';
+    });
+
+    /* ===== Platos (demo + API si existe) ===== */
+    let platos=[];
+    async function cargarPlatos(){
+      try{
+        const res=await fetch('/api/platos/list');
+        if(!res.ok) throw 0;
+        platos=await res.json();
+      }catch(_){
+        // Fallback demo
+        platos=[
+          {id:1,nombre:'Milanesa con papas',categoria:'PRINCIPAL',precio:5200,disponible:true},
+          {id:2,nombre:'Gaseosa 500ml',categoria:'BEBIDA',precio:900,disponible:true}
+        ];
+      }
+      renderPlatos();
+      fillSelectPlatos();
+    }
+    function fillSelectPlatos(){
+      const sel=document.getElementById('selPlato');
+      sel.innerHTML=platos.map(p=>`<option value="${p.id}" data-precio="${p.precio}">${p.nombre}</option>`).join('');
+      actualizarPrecio();
+    }
+    function renderPlatos(){
+      const tb=document.querySelector('#tblPlatos tbody'); if(!tb) return;
+      tb.innerHTML='';
+      platos.forEach(p=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td>${p.nombre}</td>
+          <td><span class="badge">${p.categoria}</span></td>
+          <td class="right">${fmtMoney(p.precio||0)}</td>
+          <td>${p.disponible?'<span class="chip ok">Disponible</span>':'<span class="chip warn">No disp.</span>'}</td>
+          <td class="center"><button class="btn danger" onclick="eliminarPlato(${p.id})">Eliminar</button></td>`;
+        tb.appendChild(tr);
+      });
+      document.getElementById('platosCount').textContent=`${platos.length} ítems`;
+    }
+    async function eliminarPlato(id){
+      if(!confirm('¿Eliminar plato?')) return;
+      try{
+        let res=await fetch(`/api/platos/${id}`,{method:'DELETE'});
+        if(!res.ok){res=await fetch(`/api/platos/delete?id=${id}`,{method:'POST'});}
+        if(!res.ok) throw 0;
+        await cargarPlatos();
+      }catch(_){
+        // sin API: simular
+        platos=platos.filter(p=>p.id!==id);
+        renderPlatos(); fillSelectPlatos();
+      }
+    }
+    window.eliminarPlato=eliminarPlato;
+
+    // Crear plato (API o local)
+    document.getElementById('formPlato')?.addEventListener('submit',async ev=>{
+      ev.preventDefault();
+      const fd=new FormData(ev.target);
+      const obj=Object.fromEntries(fd.entries());
+      obj.precio=Number(obj.precio);
+      obj.disponible=fd.get('disponible')==='on';
+      try{
+        const res=await fetch('/api/platos/create',{method:'POST',body:new URLSearchParams(obj)});
+        if(!res.ok) throw 0;
+      }catch(_){
+        obj.id=Math.max(0,...platos.map(p=>p.id))+1;
+        platos.push(obj);
+      }
+      ev.target.reset(); await cargarPlatos();
+    });
+
+    /* ===== Pedido + propina ===== */
+    const fmtMoney=n=>new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:2}).format(n||0);
+    const pedido=[]; let tipPercentValue=10;
+
+    function actualizarPrecio(){
+      const sel=selPlato;
+      const price=sel.options[sel.selectedIndex]?.dataset.precio||0;
+      precioPlato.value=Number(price);
+    }
+    selPlato.addEventListener('change', actualizarPrecio);
+
+    document.querySelectorAll('.chip-tip')
+      .forEach(b=>b.addEventListener('click',()=>{
+        tipPercentValue=Number(b.dataset.tip||0);
+        tipPercent.value=tipPercentValue;
+        renderPedido();
+      }));
+    tipPercent.addEventListener('input',()=>{
+      tipPercentValue=Math.max(0,Math.min(100,Number(tipPercent.value||0)));
+      renderPedido();
+    });
+
+    btnAdd.addEventListener('click',()=>{
+      const id=Number(selPlato.value);
+      const nombre=selPlato.options[selPlato.selectedIndex].textContent;
+      const precio=Number(selPlato.options[selPlato.selectedIndex].dataset.precio);
+      const cant=Math.max(1,Number(cantidad.value||1));
+      pedido.push({id,nombre,precio,cant});
+      renderPedido();
+    });
+
+    function renderPedido(){
+      pedidoList.innerHTML=''; let subtotal=0;
+      pedido.forEach(x=>{
+        subtotal+=x.precio*x.cant;
+        const row=document.createElement('div'); row.className='pedido-item';
+        row.innerHTML=`<span>${x.nombre} × ${x.cant}</span><strong class="money">${fmtMoney(x.precio*x.cant)}</strong>`;
+        pedidoList.appendChild(row);
+      });
+      const tip=subtotal*(tipPercentValue/100); const total=subtotal+tip;
+      pedidoSubtotal.textContent=fmtMoney(subtotal);
+      tipLabel.textContent=`${tipPercentValue}%`;
+      tipAmount.textContent=fmtMoney(tip);
+      pedidoTotal.textContent=fmtMoney(total);
+    }
+
+    btnCerrar.addEventListener('click',()=>{
+      if(!pedido.length){alert('Agregá al menos un plato.');return;}
+      alert(`Pedido listo.\nTotal: ${pedidoTotal.textContent}`);
+    });
+
+    /* ===== Usuarios (LOCALSTORAGE para login posterior) ===== */
+    function getUsers(){return JSON.parse(localStorage.getItem('users')||'[]');}
+    function setUsers(list){localStorage.setItem('users',JSON.stringify(list));}
+    function renderUsuarios(){
+      const tb=document.querySelector('#tblUsuarios tbody'); if(!tb) return;
+      const users=getUsers();
+      tb.innerHTML='';
+      users.forEach(u=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=
+          `<td>${u.nombre||u.username}</td>
+           <td class="center">${u.edad||'-'}</td>
+           <td>${u.username}</td>
+           <td>${u.rol}</td>
+           <td>${u.puesto||'-'}</td>
+           <td class="right">${u.sueldo?fmtMoney(u.sueldo):'-'}</td>
+           <td class="center">${u.dias||'-'}</td>
+           <td class="center">${u.horas||'-'}</td>`;
+        tb.appendChild(tr);
+      });
+      usuariosCount.textContent=`${users.length} usuarios`;
+    }
+
+    document.getElementById('formUsuario')?.addEventListener('submit',ev=>{
+      ev.preventDefault();
+      const fd=new FormData(ev.target);
+      const u=Object.fromEntries(fd.entries());
+      u.edad=Number(u.edad); u.sueldo=Number(u.sueldo); u.dias=Number(u.dias); u.horas=Number(u.horas);
+
+      const list=getUsers();
+      if(list.some(x=>x.username?.toLowerCase()===u.username.toLowerCase())){
+        alert('Ese usuario ya existe.'); return;
+      }
+      if(u.rol==='ADMIN' && list.filter(x=>x.rol==='ADMIN').length>=3){
+        alert('Máximo 3 administradores.'); return;
+      }
+      list.push(u); setUsers(list); ev.target.reset(); renderUsuarios();
+      alert('Usuario creado. Ya puede ingresar desde el login.');
+    });
+
+    /* ===== Init ===== */
+    cargarPlatos();
+    renderUsuarios();
+  </script>
+</body>
+</html>

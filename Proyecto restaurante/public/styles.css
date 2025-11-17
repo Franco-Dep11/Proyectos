@@ -1,0 +1,161 @@
+/* ===== FONDO CON AURA (imagen + vignette + glow) ===== */
+.bg-aura {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(900px 480px at 60% 58%, rgba(255,255,255,.14), rgba(0,0,0,0) 55%),
+    radial-gradient(1600px 900px at 50% 50%, rgba(0,0,0,.55), rgba(0,0,0,.82) 60%),
+    url("./images/Background.webp") center/cover no-repeat fixed;
+  filter: saturate(108%) contrast(105%);
+}
+:root[data-theme="light"] .bg-aura {
+  background:
+    radial-gradient(900px 480px at 60% 58%, rgba(255,255,255,.40), rgba(255,255,255,0) 55%),
+    radial-gradient(1600px 900px at 50% 50%, rgba(0,0,0,.10), rgba(0,0,0,0) 65%),
+    url("./images/Background.webp") center/cover no-repeat fixed;
+  filter: contrast(98%) brightness(1.03);
+}
+
+/* ===== PALETA (bordó + dorado) ===== */
+:root{
+  --bg:#0c0f14; --text:#f2f4f7; --muted:#cfd6e1;
+  --bordo:#6d2022; --bordo-soft:#842b2e; --accent:#d8a657;
+  --outline:rgba(255,255,255,.35); --shadow:rgba(0,0,0,.35);
+
+  /* inputs (tema oscuro) */
+  --input-bg: rgba(255,255,255,.08);
+  --input-color: var(--text);
+  --select-panel-bg: #1a1f26;         /* panel del menú abierto */
+  --select-option-bg: #2a323c;        /* fondo de cada option */
+  --select-option-color: #fff;
+}
+:root[data-theme="light"]{
+  --bg:#f6f5f2; --text:#12151c; --muted:#566070;
+  --bordo:#8f3436; --bordo-soft:#a84245; --accent:#bf8e3c;
+  --outline:rgba(0,0,0,.20); --shadow:rgba(0,0,0,.18);
+
+  /* inputs (tema claro) */
+  --input-bg: rgba(0,0,0,.04);
+  --input-color: var(--text);
+  --select-panel-bg: #ffffff;
+  --select-option-bg: #ffffff;
+  --select-option-color: #111;
+}
+
+/* ===== BASE ===== */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--text); background:var(--bg);
+  font:16px/1.45 system-ui,Segoe UI,Roboto,Ubuntu,Arial;
+}
+h1,h2,h3{margin:.2rem 0 .6rem}
+.muted{color:var(--muted)}
+
+/* ===== HERO ===== */
+.hero{padding:24px 16px}
+.hero.compact{padding-top:18px}
+.kicker{letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.hero h1{margin:.2rem 0 0;font-size:clamp(24px,4.2vw,32px)}
+.accent{color:var(--accent)}
+.hero .btn{margin-top:8px}
+
+/* ===== BOARD (landing panel) ===== */
+.board{
+  width:min(620px,95vw);
+  background: color-mix(in srgb, var(--bordo) 92%, transparent);
+  border:1px solid var(--outline); border-radius:16px; padding:18px;
+  box-shadow:0 24px 64px var(--shadow); backdrop-filter: blur(6px) saturate(120%);
+}
+.board-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.brand-circle{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(255,255,255,.08); border:1px solid var(--outline); font-size:22px}
+.brand-title{margin:0;font-size:clamp(26px,4.6vw,38px)}
+.board-menu{display:grid;gap:16px;margin:16px 6px 18px}
+.menu-row{
+  display:grid; grid-template-columns:28px 1fr 18px; align-items:center; gap:12px;
+  text-decoration:none; color:#fff; padding:16px 14px;
+  border:1px solid var(--outline); border-radius:12px;
+  background:rgba(255,255,255,.06); transition:.18s ease all;
+}
+.menu-row:hover{background:rgba(255,255,255,.12); transform:translateY(-1px)}
+.menu-icon{font-size:18px;opacity:.95}
+.menu-trail{opacity:.7}
+.board-footer{display:flex;justify-content:flex-end}
+.board-footer small{color:var(--muted)}
+
+/* ===== BOTÓN TEMA ===== */
+.btn-fab{
+  position:fixed; top:16px; right:16px; z-index:10;
+  border:1px solid var(--outline); background:rgba(255,255,255,.10);
+  color:var(--text); padding:10px 12px; border-radius:999px; cursor:pointer;
+  backdrop-filter: blur(6px);
+}
+.btn-fab:hover{background:rgba(255,255,255,.18)}
+
+/* ===== CARDS (panel) ===== */
+.card{
+  background:rgba(255,255,255,.08);
+  border:1px solid var(--outline);
+  border-radius:14px; padding:16px;
+}
+.glass{background:rgba(255,255,255,.10); backdrop-filter: blur(12px) saturate(130%);}
+.container{max-width:1100px;margin:28px auto;padding:0 16px;display:grid;gap:18px}
+
+/* ===== TABLAS ===== */
+.table-wrap{overflow:auto;border-radius:12px;border:1px solid var(--outline);background:rgba(0,0,0,.04)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 12px;border-bottom:1px solid var(--outline)}
+thead th{position:sticky;top:0;background:transparent;backdrop-filter:blur(6px)}
+tbody tr:hover{background:rgba(255,255,255,.06)}
+.right{text-align:right}.center{text-align:center}
+
+/* ===== BADGES/CHIPS ===== */
+.badge{display:inline-block;padding:2px 8px;border:1px solid var(--outline);border-radius:999px;font-size:.8rem;color:var(--muted)}
+.chip{display:inline-block;padding:4px 8px;border-radius:8px;border:1px solid var(--outline);background:rgba(255,255,255,.04)}
+.chip.ok{border-color:#2ecc71;color:#2ecc71}
+.chip.warn{border-color:#f4b400;color:#f4b400}
+.chip.admin{border-color:#ff5b5b;color:#ff5b5b;font-weight:600}
+
+/* ===== FORM / GRID ===== */
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.grid .row{grid-column:1/-1;display:flex;gap:8px;align-items:center}
+.grid .end{justify-content:flex-end}
+@media (max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.grid{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:6px;font-size:.96rem}
+
+/* ===== INPUTS / SELECTS (tema-aware) ===== */
+input, select{
+  padding:10px;border-radius:10px;border:1px solid var(--outline);
+  background:var(--input-bg); color:var(--input-color);
+}
+input::placeholder{color:var(--muted)}
+input:focus, select:focus{outline:none;border-color:var(--accent)}
+
+/* estilo del panel del select y opciones (cuando navegador lo permite) */
+select{
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+                    linear-gradient(135deg, var(--muted) 50%, transparent 50%),
+                    linear-gradient(to right, transparent, transparent);
+  background-position: calc(100% - 18px) calc(1.1em), calc(100% - 12px) calc(1.1em), 100% 0;
+  background-size: 6px 6px, 6px 6px, 2.5em 2.5em;
+  background-repeat: no-repeat;
+}
+select option{
+  background:var(--select-option-bg);
+  color:var(--select-option-color);
+}
+
+/* ===== BOTONES ===== */
+.btn{
+  padding:10px 14px;border-radius:12px;border:1px solid var(--outline);
+  background:transparent;color:var(--text);cursor:pointer;
+}
+.btn.ghost:hover{background:rgba(255,255,255,.10)}
+.btn.primary{background:var(--accent);border:none;color:#2b1d0b;font-weight:600}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.danger{background:#b73239;border:none;color:#fff}
+.btn.danger:hover{filter:brightness(1.1)}

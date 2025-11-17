@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ingresar · Restaurante</title>
+
+  <!-- Si usas un styles.css externo, puedes dejarlo; aquí va el estilo base de la vista -->
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    :root{
+      --outline:rgba(255,255,255,.16);
+      --shadow:rgba(0,0,0,.5);
+      --accent:#22c55e;
+      --muted:#cfcfd3;
+    }
+    *{box-sizing:border-box}
+    body{
+      min-height:100vh;margin:0;color:#f7f7f7;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial
+    }
+    /* Fondo con aura sobre la foto */
+    .bg-aura{
+      position:fixed;inset:0;z-index:-2;
+      background:
+        radial-gradient(1100px 760px at 30% 40%,rgba(255,255,255,.20),rgba(0,0,0,.75) 62%),
+        radial-gradient(1300px 900px at 70% 65%,rgba(0,0,0,.65),rgba(0,0,0,.92) 72%),
+        url("/images/Background.webp") center/cover no-repeat fixed;
+      filter:saturate(110%) contrast(105%);
+    }
+
+    /* Tarjeta de login (glassmorphism cálido) */
+    .login-card{
+      width:min(560px,92vw);
+      background:rgba(0,0,0,.35);
+      border:1px solid var(--outline);
+      border-radius:18px;
+      padding:26px 24px;
+      box-shadow:0 28px 70px var(--shadow);
+      backdrop-filter:blur(8px) saturate(120%);
+    }
+    .login-title{margin:0 0 6px;font-size:clamp(26px,5vw,34px)}
+    .login-sub{margin:0 0 16px;color:var(--muted)}
+
+    .role-tabs{display:flex;gap:10px;margin:12px 0 16px}
+    .role-tabs .tab{
+      flex:1;text-align:center;padding:12px;
+      border:1px solid var(--outline);border-radius:12px;
+      background:rgba(255,255,255,.08);cursor:pointer;font-weight:600
+    }
+    .role-tabs .tab.active{outline:2px solid #eab308;background:rgba(255,255,255,.14)}
+
+    form.login-form{display:grid;gap:12px}
+    input{
+      width:100%;padding:12px;border-radius:12px;
+      border:1px solid var(--outline);
+      background:rgba(0,0,0,.35);color:#fff
+    }
+    .btn{
+      padding:10px 16px;border-radius:12px;
+      border:1px solid var(--outline);
+      background:#eab308;color:#222;font-weight:700;cursor:pointer
+    }
+    .help{font-size:.9rem;color:var(--muted)}
+    main{min-height:100vh;display:grid;place-items:center;padding:24px}
+  </style>
+</head>
+<body>
+  <div class="bg-aura"></div>
+
+  <main>
+    <section class="login-card">
+      <h1 class="login-title" id="brandTitle">Restaurante</h1>
+      <p class="login-sub">Ingresá con tu usuario y contraseña.</p>
+
+      <div class="role-tabs" id="roleTabs">
+        <div class="tab active" data-role="ADMIN">Administrador</div>
+        <div class="tab" data-role="EMPLEADO">Empleado</div>
+      </div>
+
+      <form id="formLogin" class="login-form" autocomplete="on">
+        <label>Usuario
+          <input id="username" required placeholder="usuario" />
+        </label>
+        <label>Contraseña
+          <input id="password" type="password" required placeholder="********" />
+        </label>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn" type="submit">Ingresar</button>
+        </div>
+        <p class="help">Demo: <code>Admin / 1234a</code> (ADMIN). Los usuarios que cree el Admin también podrán ingresar.</p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    // nombre de marca desde config.json (opcional)
+    fetch('/config.json')
+      .then(r=>r.ok?r.json():{restaurantName:'Restaurante'})
+      .then(cfg=>{
+        const n=cfg.restaurantName||'Restaurante';
+        brandTitle.textContent=n;
+        document.title='Ingresar · '+n;
+      }).catch(()=>{});
+
+    // seed admin base localStorage
+    (function seed(){
+      const list=JSON.parse(localStorage.getItem('users')||'[]');
+      const hasAdmin=list.some(u=>u.username?.toLowerCase()==='admin');
+      if(!hasAdmin){
+        list.push({username:'Admin',password:'1234a',rol:'ADMIN',nombre:'Administrador Principal'});
+        localStorage.setItem('users',JSON.stringify(list));
+      }
+    })();
+
+    // tabs de rol
+    let selectedRole='ADMIN';
+    roleTabs.addEventListener('click',e=>{
+      const t=e.target.closest('.tab'); if(!t) return;
+      document.querySelectorAll('.role-tabs .tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active'); selectedRole=t.dataset.role;
+    });
+
+    // login
+    formLogin.addEventListener('submit',async ev=>{
+      ev.preventDefault();
+      const username=document.getElementById('username').value.trim();
+      const password=document.getElementById('password').value;
+
+      // intento backend opcional
+      try{
+        const res=await fetch('/api/auth/login',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({username,password,role:selectedRole})
+        });
+        if(res.ok){
+          const data=await res.json();
+          if(data?.role){ setSession(data.role, data.name||username); return; }
+        }
+      }catch(_){}
+
+      // fallback localStorage
+      const users=JSON.parse(localStorage.getItem('users')||'[]');
+      const found=users.find(u=>u.username?.toLowerCase()===username.toLowerCase()
+                               && u.password===password && u.rol===selectedRole);
+      if(found){ setSession(found.rol, found.nombre||found.username); }
+      else if(username.toLowerCase()==='admin' && password==='1234a' && selectedRole==='ADMIN'){
+        setSession('ADMIN','Administrador Principal');
+      }else{
+        alert('Usuario/contraseña o rol incorrectos.');
+      }
+
+      function setSession(role,name){
+        localStorage.setItem('authRole',role);
+        localStorage.setItem('authUser',name);
+        location.href='/panel.html';
+      }
+    });
+  </script>
+</body>
+</html>
